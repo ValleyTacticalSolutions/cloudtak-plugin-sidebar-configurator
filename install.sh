@@ -167,6 +167,7 @@ fi
 if [ ! -d "$CT_DIR/app" ]; then
   echo "ERROR: $CT_DIR/app not found." >&2
   echo "  Plugins install into app/plugins/. That layout arrived in CloudTAK 13.102." >&2
+  echo "  Sidebar Configurator requires CloudTAK >= 13.124 (OXLint API + Auth.security)." >&2
   exit 1
 fi
 
@@ -228,7 +229,9 @@ else
       cp "$SOURCE_DIR/server/$SERVER_ROUTE_SRC_NAME" "$SERVER_ROUTE_DEST"
       echo "Installed server route: api/stateless/routes/$SERVER_ROUTE_SRC_NAME"
     else
-      echo "WARNING: $CT_DIR/api/stateless/routes not found — client plugin installed without API." >&2
+      echo "ERROR: $CT_DIR/api/stateless/routes not found — shared config API cannot be installed." >&2
+      echo "  Sidebar Configurator requires CloudTAK >= 13.124 (OXLint API + Auth.security)." >&2
+      exit 1
     fi
   fi
   echo "Installed plugin: app/plugins/$INSTALL_DIR_NAME"

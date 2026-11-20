@@ -2,7 +2,7 @@
 
 CloudTAK plugin that lets a **system admin** set the default main-menu (sidebar) layout for everyone on the server — including installed plugins that register menu items.
 
-Requires CloudTAK **13.102** or newer. Apache-2.0.
+Requires CloudTAK **13.124** or newer (OXLint/TS7 API image; Auth.security admin schemes from 13.123). Apache-2.0.
 
 ## What it does
 

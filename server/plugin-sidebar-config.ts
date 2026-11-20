@@ -1,4 +1,7 @@
-/* eslint-disable */
+/**
+ * CloudTAK server routes for Sidebar Configurator.
+ * Copied into api/stateless/routes/ by install.sh — must pass OXLint (CloudTAK 13.124+).
+ */
 import { Type } from '@sinclair/typebox';
 import { sql } from 'drizzle-orm';
 import Schema from '@openaddresses/batch-schema';
@@ -153,7 +156,12 @@ async function readConfig(config: ConfigStateless): Promise<StoredConfig> {
 
   const parse = (raw: unknown): unknown => {
     if (typeof raw === 'string') {
-      try { return JSON.parse(raw); } catch { return []; }
+      try {
+        return JSON.parse(raw);
+      } catch {
+        // Invalid JSON in DB → treat as empty layout.
+        return [];
+      }
     }
     return raw;
   };
@@ -316,6 +324,7 @@ export default async function router(schema: Schema, config: ConfigStateless) {
       adminItems: Type.Array(MenuPrefSchema),
     }),
     res: ConfigSchema,
+    security: Auth.security({ admin: true }),
   }, async (req, res) => {
     try {
       const user = await Auth.as_user(config, req, { admin: true });
@@ -344,6 +353,7 @@ export default async function router(schema: Schema, config: ConfigStateless) {
     group: 'SidebarConfigurator',
     description: 'Force-overwrite sidebars for all non-admin users (and admins if manageAdminSidebar). Ignores New Users Only empty-only rules. Off: no-op.',
     res: PushResultSchema,
+    security: Auth.security({ admin: true }),
   }, async (req, res) => {
     try {
       await Auth.as_user(config, req, { admin: true });
