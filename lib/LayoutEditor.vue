@@ -186,6 +186,12 @@ function syncSortable(): void {
   sortable = new Sortable(listEl.value, {
     animation: 150,
     handle: '.drag-handle',
+    // Touch: a short press on the handle starts the drag; the native fallback keeps the page from scrolling
+    delay: 120,
+    delayOnTouchOnly: true,
+    touchStartThreshold: 4,
+    forceFallback: true,
+    fallbackOnBody: true,
     dataIdAttr: 'data-key',
     onEnd: () => {
       if (!sortable) return;
@@ -238,6 +244,10 @@ watch(
   background-color: var(--cloudtak-inset-bg, var(--tblr-bg-surface-secondary, transparent));
   color: var(--cloudtak-surface-color, var(--tblr-body-color));
   border-color: var(--cloudtak-inset-border, var(--tblr-border-color, rgba(128, 128, 128, 0.25)));
+}
+
+.drag-handle {
+  touch-action: none;
 }
 
 .sidebar-config-item--hidden {

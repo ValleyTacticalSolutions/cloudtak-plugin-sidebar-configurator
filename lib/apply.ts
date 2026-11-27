@@ -1,6 +1,5 @@
 import type { PluginAPI } from '@tak-ps/cloudtak';
-import { useMapStore } from '../../../src/stores/map.ts';
-import ProfileConfig from '../../../src/base/profile.ts';
+import { hostStore } from './host.ts';
 import { fetchConfig } from './api.ts';
 import { disableForcedLock, enableForcedLock } from './lock.ts';
 import type { MenuPref, SidebarConfig } from './constants.ts';
@@ -11,10 +10,9 @@ type MenuManagerLike = {
   setVisibility: (key: string, visible: 'full' | 'partial' | 'hidden') => Promise<void>;
 };
 
-async function isSystemAdmin(): Promise<boolean> {
+async function isSystemAdmin(api: PluginAPI): Promise<boolean> {
   try {
-    const entry = await ProfileConfig.get('system_admin');
-    return !!(entry?.value);
+    return !!(await api.profile.get('system_admin'));
   } catch {
     return false;
   }
@@ -30,9 +28,9 @@ async function writeLayout(menu: MenuManagerLike, layout: MenuPref[]): Promise<v
     key: p.key,
     visibility: (p.visibility || 'full') as MenuPref['visibility'],
   }));
+  // setOrder keeps each key's visibility from preferenceOrder and saves to the local cache and the server
   menu.preferenceOrder.value = next;
-  const config = new ProfileConfig('menu_order', next);
-  await config.commit(next);
+  await menu.setOrder(next.map((p) => p.key));
 }
 
 export async function applySidebarConfig(api: PluginAPI): Promise<SidebarConfig> {
@@ -40,12 +38,11 @@ export async function applySidebarConfig(api: PluginAPI): Promise<SidebarConfig>
   disableForcedLock(api);
 
   const config = await fetchConfig();
-  const admin = await isSystemAdmin();
+  const admin = await isSystemAdmin(api);
 
   let menu: MenuManagerLike;
   try {
-    const mapStore = useMapStore(api.pinia);
-    menu = mapStore.menu as unknown as MenuManagerLike;
+    menu = hostStore<{ menu: MenuManagerLike }>('cloudtak', api.pinia).menu;
   } catch (err) {
     console.warn('[sidebar-config] menu not ready', err);
     return config;

@@ -125,7 +125,7 @@
                     <button
                         type='button'
                         class='btn btn-outline-primary'
-                        :disabled='busy || !writable'
+                        :disabled='!!busy || !writable'
                         @click='onPush'
                     >
                         {{ busy === 'push' ? 'Overwriting…' : 'Overwrite All Toolbars' }}
@@ -173,7 +173,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import type { Component } from 'vue';
 import type { PluginAPI } from '@tak-ps/cloudtak';
 import { TablerInlineAlert } from '@tak-ps/vue-tabler';
-import { useMapStore } from '../../../src/stores/map.ts';
+import { hostStore } from './host.ts';
 import LayoutEditor, { type CatalogItem } from './LayoutEditor.vue';
 import SidebarPreview from './SidebarPreview.vue';
 import { fetchConfig, pushConfig, saveConfig } from './api.ts';
@@ -232,7 +232,6 @@ async function persist(): Promise<boolean> {
   if (busy.value === 'push') return false;
 
   clearSaveTimer();
-  const prevBusy = busy.value;
   busy.value = 'save';
   error.value = '';
 
@@ -256,7 +255,7 @@ async function persist(): Promise<boolean> {
     error.value = err instanceof Error ? err.message : 'Save Failed';
     return false;
   } finally {
-    busy.value = prevBusy === 'push' ? 'push' : false;
+    busy.value = false;
   }
 }
 
@@ -271,12 +270,13 @@ function copyFromStandardUsers(): void {
 
 function refreshCatalog(): void {
   try {
-    const mapStore = useMapStore(props.api.pinia);
-    const menu = mapStore.menu as {
-      baseMenuItems?: MenuSourceItem[];
-      pluginMenuItems?: { value: MenuSourceItem[] };
-      items?: { value: MenuSourceItem[] };
-    };
+    const menu = hostStore<{
+      menu: {
+        baseMenuItems?: MenuSourceItem[];
+        pluginMenuItems?: { value: MenuSourceItem[] };
+        items?: { value: MenuSourceItem[] };
+      };
+    }>('cloudtak', props.api.pinia).menu;
 
     const base = menu.baseMenuItems || [];
     const plugins = menu.pluginMenuItems?.value || [];

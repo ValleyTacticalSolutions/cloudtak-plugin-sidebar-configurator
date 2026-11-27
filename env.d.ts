@@ -13,22 +13,3 @@ declare module '*.json' {
   const value: unknown;
   export default value;
 }
-
-declare module 'sortablejs' {
-  export interface SortableEvent {
-    oldIndex?: number;
-    newIndex?: number;
-  }
-  export interface Options {
-    animation?: number;
-    handle?: string;
-    dataIdAttr?: string;
-    onEnd?: (evt: SortableEvent) => void;
-  }
-  export default class Sortable {
-    constructor(el: HTMLElement, options?: Options);
-    toArray(): string[];
-    destroy(): void;
-    el: HTMLElement;
-  }
-}

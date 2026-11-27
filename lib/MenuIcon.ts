@@ -20,7 +20,7 @@ export const IconSidebarConfig = defineComponent({
     return () => h(IconLayoutSidebar, {
       size: props.size,
       color: props.color,
-      stroke: props.stroke,
+      stroke: String(props.stroke),
     });
   },
 });

@@ -1,27 +1,37 @@
 {
   "name": "cloudtak-plugin-sidebar-configurator",
-  "version": "1.1.2",
+  "version": "2.0.0",
   "type": "module",
-  "description": "CloudTAK plugin — admin default sidebar layouts (Off / New Users Only / Forced) for standard users and admins",
+  "description": "CloudTAK plugin \u2014 admin default sidebar layouts (Off / New Users Only / Forced) for standard users and admins",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ValleyTacticalSolutions/cloudtak-plugin-sidebar-configurator.git"
+  },
+  "cloudtak": {
+    "minVersion": "14.4.1"
+  },
   "main": "index.js",
   "scripts": {
-    "lint": "eslint .",
-    "check": "vue-tsc --noEmit"
+    "verify": "bash verify-cloudtak.sh . sidebar-configurator",
+    "build:bundle": "vite build --config vite.bundle.config.ts",
+    "bundle": "npm run build:bundle && node scripts/bundle.mjs"
+  },
+  "cloudtakBundle": {
+    "name": "sidebar-configurator",
+    "author": "ValleyTacticalSolutions",
+    "homepage": "https://github.com/ValleyTacticalSolutions/cloudtak-plugin-sidebar-configurator"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@tak-ps/cloudtak": "file:../../../CloudTAK/app",
-    "@tak-ps/vue-tabler": "^5.0.0",
-    "@tabler/icons-vue": "^3.31.0",
-    "@typescript-eslint/eslint-plugin": "^8.52.0",
-    "@typescript-eslint/parser": "^8.52.0",
-    "eslint": "^10.0.1",
-    "globals": "^17.3.0",
+    "@tabler/icons-vue": "^3.0.0",
+    "@tak-ps/vue-tabler": "^6.0.0",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "pinia": "^4.0.0",
     "sortablejs": "^1.15.6",
-    "typescript": "^6.0.2",
-    "typescript-eslint": "^8.52.0",
-    "vue": "^3.5.26",
-    "vue-tsc": "^3.2.2"
+    "typescript": "^5.9.0",
+    "vite": "^8.0.0",
+    "vite-plugin-css-injected-by-js": "^3.5.0",
+    "vue": "^3.5.0",
+    "vue-router": "^5.0.0"
   }
 }

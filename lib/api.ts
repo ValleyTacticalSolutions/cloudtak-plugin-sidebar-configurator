@@ -1,4 +1,4 @@
-import { std } from '../../../src/std.ts';
+import { apiFetch } from './host.ts';
 import {
   API_BASE,
   DEFAULT_CONFIG,
@@ -51,7 +51,7 @@ function parseConfig(raw: unknown): SidebarConfig {
 
 export async function fetchConfig(): Promise<SidebarConfig> {
   try {
-    const r = await std(API_BASE, { method: 'GET' });
+    const r = await apiFetch(API_BASE, { method: 'GET' });
     return parseConfig(r);
   } catch (err) {
     console.warn('[sidebar-config] fetch failed', err);
@@ -65,7 +65,7 @@ export async function saveConfig(payload: {
   userItems: MenuPref[];
   adminItems: MenuPref[];
 }): Promise<SidebarConfig> {
-  const r = await std(API_BASE, {
+  const r = await apiFetch(API_BASE, {
     method: 'PUT',
     body: payload,
   });
@@ -80,7 +80,7 @@ export type PushResult = {
 };
 
 export async function pushConfig(): Promise<PushResult> {
-  const r = await std(`${API_BASE}/push`, { method: 'POST' }) as Record<string, unknown>;
+  const r = await apiFetch(`${API_BASE}/push`, { method: 'POST' }) as Record<string, unknown>;
   return {
     mode: normalizeApplyMode(r.mode),
     updated: Number(r.updated) || 0,

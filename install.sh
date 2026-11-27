@@ -37,6 +37,7 @@
 set -euo pipefail
 
 INSTALL_DIR_NAME="sidebar-configurator"
+MIN_CLOUDTAK="14.4.1"
 PLUGIN_GIT_URL="${SIDEBAR_CONFIG_GIT_URL:-https://github.com/ValleyTacticalSolutions/cloudtak-plugin-sidebar-configurator.git}"
 PLUGIN_GIT_REF="${SIDEBAR_CONFIG_GIT_REF:-main}"
 
@@ -166,9 +167,17 @@ if [ "$DO_BUILD" -eq 1 ] && [ ! -f "$CT_DIR/docker-compose.yml" ]; then
 fi
 if [ ! -d "$CT_DIR/app" ]; then
   echo "ERROR: $CT_DIR/app not found." >&2
-  echo "  Plugins install into app/plugins/. That layout arrived in CloudTAK 13.102." >&2
-  echo "  Sidebar Configurator requires CloudTAK >= 13.124 (OXLint API + Auth.security)." >&2
+  echo "  Sidebar Configurator requires CloudTAK >= $MIN_CLOUDTAK." >&2
   exit 1
+fi
+
+# Refuse to install on a CloudTAK older than the version this plugin was built and verified against
+if [ -f "$CT_DIR/app/package.json" ]; then
+  CT_VERSION="$(sed -n 's/^[[:space:]]*"version":[[:space:]]*"\([^"]*\)".*/\1/p' "$CT_DIR/app/package.json" | head -1)"
+  if [ -n "$CT_VERSION" ] && [ "$(printf '%s\n%s\n' "$MIN_CLOUDTAK" "$CT_VERSION" | sort -V | head -1)" != "$MIN_CLOUDTAK" ]; then
+    echo "ERROR: CloudTAK $CT_VERSION is older than the required $MIN_CLOUDTAK." >&2
+    exit 1
+  fi
 fi
 
 PLUGIN_DEST="$CT_DIR/app/plugins/$INSTALL_DIR_NAME"
@@ -230,7 +239,7 @@ else
       echo "Installed server route: api/stateless/routes/$SERVER_ROUTE_SRC_NAME"
     else
       echo "ERROR: $CT_DIR/api/stateless/routes not found — shared config API cannot be installed." >&2
-      echo "  Sidebar Configurator requires CloudTAK >= 13.124 (OXLint API + Auth.security)." >&2
+      echo "  Sidebar Configurator requires CloudTAK >= $MIN_CLOUDTAK." >&2
       exit 1
     fi
   fi

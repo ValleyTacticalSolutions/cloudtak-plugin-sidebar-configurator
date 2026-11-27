@@ -2,7 +2,7 @@
 
 CloudTAK plugin that lets a **system admin** set the default main-menu (sidebar) layout for everyone on the server — including installed plugins that register menu items.
 
-Requires CloudTAK **13.124** or newer (OXLint/TS7 API image; Auth.security admin schemes from 13.123). Apache-2.0.
+**Minimum CloudTAK: v14.4.1**. Built and verified against CloudTAK v14.4.1 (commit 184ecb2, 2026-11-27). There is no upper limit, and newer CloudTAK versions are expected to work. Please report breakage as an issue. Apache-2.0.
 
 ## What it does
 
@@ -46,6 +46,16 @@ After it finishes: **Settings → Refresh App**. A normal browser refresh is not
 
 Symlink this checkout to `CloudTAK/app/plugins/sidebar-configurator`, copy or symlink `server/plugin-sidebar-config.ts` into `api/stateless/routes/`, run `npm install` here (with `@tak-ps/cloudtak` pointing at your CloudTAK `app` package), and restart `npm run serve` in `app`.
 
+## Mobile (CloudTAK iOS/Android app)
+
+The native apps only run runtime bundles, not plugins compiled into the web build. The bundle covers the web half only, so **the server-side install is still required**: run `./install.sh` (or the Marketplace install) so the `/api/sidebar-config` route is on the CloudTAK server and the API image is rebuilt.
+
+1. Build: `npm install && npm run bundle` creates `release/sidebar-configurator-<version>.tar.gz` (`manifest.json` + `index.js`). GitHub releases carry the same file.
+2. Upload (CloudTAK admin): `POST /api/plugin/bundle` with the tar.gz.
+3. On the phone: **Settings → Plugins**, then load Sidebar Configurator. It is stored on the device and loads offline.
+
+The saved layout is applied to the same menu store the phone's bottom-sheet menu reads, and drag-to-reorder works by touch (press the grip handle briefly, then drag). The bundle contains everything except `vue`, `vue-router` and `@tak-ps/vue-tabler`, which the app provides.
+
 ## How to use
 
 1. Sign in as a CloudTAK **system admin**.
@@ -60,3 +70,19 @@ Symlink this checkout to `CloudTAK/app/plugins/sidebar-configurator`, copy or sy
 - Forced lock of the pencil/reorder UI is best-effort (CSS + client method wrap) and only affects non-admins.
 - New plugin menu keys that appear after a layout was saved append at the end until an admin re-saves.
 - The configurator button itself is admin-only; New Users Only / Forced apply still runs for every user on plugin `enable()` when that mode is active.
+
+## Core imports
+
+None. The plugin no longer imports anything from CloudTAK's `src/`, so it also works as a runtime bundle:
+
+- `lib/host.ts` resolves the CloudTAK server URL and token and makes authenticated requests (`apiFetch`, used for `/api/sidebar-config`), and reads host Pinia stores from `api.pinia` (`hostStore('cloudtak')` for the menu).
+- `lib/vendor/MenuTemplate.vue` is a copy of CloudTAK's menu frame. Re-sync it when CloudTAK changes the menu chrome.
+- The admin check uses `api.profile`; saving a layout calls the host menu's `setOrder`.
+
+## Development
+
+The Marketplace install compiles the plugin inside CloudTAK. To check it against the latest CloudTAK `main` (ESLint, `vue-tsc`, Vite build, API lint and `tsc`):
+
+```bash
+bash verify-cloudtak.sh . sidebar-configurator
+```

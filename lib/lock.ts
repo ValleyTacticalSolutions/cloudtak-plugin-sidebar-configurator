@@ -1,5 +1,5 @@
 import type { PluginAPI } from '@tak-ps/cloudtak';
-import { useMapStore } from '../../../src/stores/map.ts';
+import { hostStore } from './host.ts';
 import type { MenuPref } from './constants.ts';
 
 const STYLE_ID = 'sidebar-configurator-forced-lock';
@@ -58,8 +58,7 @@ export function enableForcedLock(api: PluginAPI, layout: MenuPref[]): void {
   if (locked) return;
 
   try {
-    const mapStore = useMapStore(api.pinia);
-    const menu = mapStore.menu as unknown as MenuManagerLike;
+    const menu = hostStore<{ menu: MenuManagerLike }>('cloudtak', api.pinia).menu;
     if (!menu?.setOrder || !menu?.setVisibility) return;
 
     originalSetOrder = menu.setOrder.bind(menu);
@@ -86,8 +85,7 @@ export function disableForcedLock(api: PluginAPI): void {
   }
 
   try {
-    const mapStore = useMapStore(api.pinia);
-    const menu = mapStore.menu as unknown as MenuManagerLike;
+    const menu = hostStore<{ menu: MenuManagerLike }>('cloudtak', api.pinia).menu;
     if (menu && originalSetOrder) menu.setOrder = originalSetOrder;
     if (menu && originalSetVisibility) menu.setVisibility = originalSetVisibility;
   } catch {
