@@ -2,7 +2,7 @@
 
 CloudTAK plugin that lets a **system admin** set the default main-menu (sidebar) layout for everyone on the server — including installed plugins that register menu items.
 
-**Minimum CloudTAK: v14.4.1**. Built and verified against CloudTAK v14.4.1 (commit 184ecb2, 2026-11-27). There is no upper limit, and newer CloudTAK versions are expected to work. Please report breakage as an issue. Apache-2.0.
+**Minimum CloudTAK: v14.4.1**. Built and verified against CloudTAK v14.4.1 (commit 184ecb2, 2026-11-27). There is no upper limit, and newer CloudTAK versions are expected to work. Please report breakage as an issue.
 
 ## What it does
 
@@ -86,3 +86,7 @@ The Marketplace install compiles the plugin inside CloudTAK. To check it against
 ```bash
 bash verify-cloudtak.sh . sidebar-configurator
 ```
+
+## License
+
+AGPL-3.0-or-later. See [LICENSE](LICENSE).
